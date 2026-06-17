@@ -2,6 +2,23 @@
 	"name": "gateway-91",
 	"version": "0.1.0",
 	"private": true,
+	"description": "Country-restricted Telegram group gatekeeper bot — verifies phone country code (+91 India) and GPS location before approving join requests. Blocks outsiders. Cloudflare Workers + grammY.",
+	"keywords": [
+		"telegram",
+		"telegram-bot",
+		"gatekeeper",
+		"join-gate",
+		"chat-join-request",
+		"country-restriction",
+		"geofencing",
+		"location-verification",
+		"phone-verification",
+		"india",
+		"members-only",
+		"grammy",
+		"cloudflare-workers",
+		"typescript"
+	],
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
