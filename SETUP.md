@@ -29,7 +29,7 @@ Why a join request instead of a one-time link: the approval is keyed to the user
 
 1. Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy the **token**.
 2. `/setjoingroups` → **Enable** (lets the bot be added to groups).
-3. Optional: `/setprivacy` → **Disable** is *not* needed; the bot only reacts to private chats and join requests.
+3. Optional: `/setprivacy` → **Disable** is _not_ needed; the bot only reacts to private chats and join requests.
 
 ## 2. Configure the group
 
@@ -125,11 +125,11 @@ For webhooks against local dev you need a public tunnel (e.g. `cloudflared tunne
 
 All in [src/index.ts](src/index.ts):
 
-| Rule | Function / constant | Change it to… |
-|------|--------------------|----------------|
-| Phone country | `isIndiaPhone` | edit the `91` prefix / digit-length check |
-| Region | `INDIA` bbox + `inIndia` | adjust lat/lng bounds, or swap in a reverse-geocoder |
-| Anti-spoof | `contact.user_id !== ctx.from.id` check | keep — blocks forwarded contacts |
+| Rule          | Function / constant                     | Change it to…                                        |
+| ------------- | --------------------------------------- | ---------------------------------------------------- |
+| Phone country | `isIndiaPhone`                          | edit the `91` prefix / digit-length check            |
+| Region        | `INDIA` bbox + `inIndia`                | adjust lat/lng bounds, or swap in a reverse-geocoder |
+| Anti-spoof    | `contact.user_id !== ctx.from.id` check | keep — blocks forwarded contacts                     |
 
 ---
 
@@ -138,4 +138,4 @@ All in [src/index.ts](src/index.ts):
 - **GPS can be spoofed.** Telegram sends whatever point the device reports. A rooted/jailbroken phone or a mock-location app can fake being inside India. The bbox check stops casual/accidental out-of-region users, not a determined spoofer. There is **no server-side fix** for this — it's a platform limitation.
 - **Location is a one-time point**, not live tracking. We capture it once at verification.
 - **Phone is genuinely verified by Telegram** (it's the number on the account), so the `+91` gate is strong; only VoIP/foreign numbers registered to Telegram could slip past the country check, and those still need a real Telegram account.
-- **KV is eventually consistent.** A user who verifies and *immediately* taps the join link could, in rare cases, hit a stale read and be declined. They can just tap again. If this matters, switch `VERIF` to a Durable Object for strong consistency.
+- **KV is eventually consistent.** A user who verifies and _immediately_ taps the join link could, in rare cases, hit a stale read and be declined. They can just tap again. If this matters, switch `VERIF` to a Durable Object for strong consistency.

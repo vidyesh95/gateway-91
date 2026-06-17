@@ -8,21 +8,19 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2026-06-17",
 	"observability": {
-		"enabled": true
+		"enabled": true,
 	},
 	"upload_source_maps": true,
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
+	"compatibility_flags": ["nodejs_compat"],
 	"vars": {
-		"GROUP_CHAT_ID": "-1000000000000"
+		"GROUP_CHAT_ID": "-1000000000000",
 	},
 	"kv_namespaces": [
 		{
 			"binding": "VERIF",
-			"id": "PUT_KV_NAMESPACE_ID_HERE"
-		}
-	]
+			"id": "PUT_KV_NAMESPACE_ID_HERE",
+		},
+	],
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

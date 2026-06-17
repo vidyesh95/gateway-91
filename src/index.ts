@@ -43,20 +43,11 @@ const isIndiaPhone = (raw: string): boolean => {
 };
 
 const inIndia = (lat: number, lng: number): boolean =>
-	lat >= INDIA.latMin &&
-	lat <= INDIA.latMax &&
-	lng >= INDIA.lngMin &&
-	lng <= INDIA.lngMax;
+	lat >= INDIA.latMin && lat <= INDIA.latMax && lng >= INDIA.lngMin && lng <= INDIA.lngMax;
 
-const phoneKeyboard = new Keyboard()
-	.requestContact("📱 Share my phone number")
-	.resized()
-	.oneTime();
+const phoneKeyboard = new Keyboard().requestContact("📱 Share my phone number").resized().oneTime();
 
-const locationKeyboard = new Keyboard()
-	.requestLocation("📍 Share my location")
-	.resized()
-	.oneTime();
+const locationKeyboard = new Keyboard().requestLocation("📍 Share my location").resized().oneTime();
 
 /**
  * Create an invite link that produces a JOIN REQUEST (not instant join).
@@ -84,7 +75,7 @@ function buildBot(env: Env): Bot {
 	// The actual gate: approve a join request only if the user is verified.
 	bot.on("chat_join_request", async (ctx) => {
 		const req = ctx.chatJoinRequest;
-		if (String(req.chat.id) !== String(env.GROUP_CHAT_ID)) return;
+		if (String(req.chat.id) !== env.GROUP_CHAT_ID) return;
 		const state = await env.VERIF.get<UserState>(`user:${req.from.id}`, "json");
 		if (state?.verified) {
 			await ctx.api.approveChatJoinRequest(req.chat.id, req.from.id);
@@ -186,7 +177,7 @@ function buildBot(env: Env): Bot {
 let cachedBot: Bot | undefined;
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
+	async fetch(request, env, _ctx): Promise<Response> {
 		const url = new URL(request.url);
 
 		if (request.method === "GET" && url.pathname === "/") {
@@ -196,24 +187,23 @@ export default {
 		// One-time helper to register the webhook (and the non-default
 		// chat_join_request update). Guard with ?secret=<WEBHOOK_SECRET>.
 		if (request.method === "GET" && url.pathname === "/registerWebhook") {
-			const e = env as unknown as Env;
-			if (url.searchParams.get("secret") !== e.WEBHOOK_SECRET) {
+			if (url.searchParams.get("secret") !== env.WEBHOOK_SECRET) {
 				return new Response("forbidden", { status: 403 });
 			}
-			if (!cachedBot) cachedBot = buildBot(e);
+			if (!cachedBot) cachedBot = buildBot(env);
 			const hookUrl = `${url.origin}/webhook`;
 			await cachedBot.api.setWebhook(hookUrl, {
-				secret_token: e.WEBHOOK_SECRET,
+				secret_token: env.WEBHOOK_SECRET,
 				allowed_updates: ["message", "chat_join_request"],
 			});
 			return new Response(`webhook set -> ${hookUrl}`);
 		}
 
 		if (url.pathname === "/webhook") {
-			if (!cachedBot) cachedBot = buildBot(env as unknown as Env);
+			if (!cachedBot) cachedBot = buildBot(env);
 			if (!cachedBot.isInited()) await cachedBot.init();
 			return webhookCallback(cachedBot, "cloudflare-mod", {
-				secretToken: (env as unknown as Env).WEBHOOK_SECRET,
+				secretToken: env.WEBHOOK_SECRET,
 			})(request);
 		}
 
