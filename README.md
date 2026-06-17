@@ -2,7 +2,7 @@
 
 > **Ready-made Telegram bot that only lets people from one country into a private group — outsiders are automatically blocked.**
 
-A drop-in **Telegram join-gate / gatekeeper bot** that verifies every user's **phone country code** *and* **GPS location** before granting access to a private Telegram group. Built for **India (+91)** out of the box — change one function to restrict to any other country. Runs free on **Cloudflare Workers** with KV storage.
+A drop-in **Telegram join-gate / gatekeeper bot** that verifies every user's **phone country code** _and_ **GPS location** before granting access to a private Telegram group. Built for **India (+91)** out of the box — change one function to restrict to any other country. Runs free on **Cloudflare Workers** with KV storage.
 
 **If you searched for any of these, this is the repo you want:**
 
@@ -14,7 +14,7 @@ A drop-in **Telegram join-gate / gatekeeper bot** that verifies every user's **p
 
 Outsiders cannot get in. A user only enters the private group if they pass **two checks**:
 
-1. **Phone country** — must share their *own* Telegram phone number, and it must be **+91 (India)**. Forwarded/other-people's contacts are rejected (anti-spoof).
+1. **Phone country** — must share their _own_ Telegram phone number, and it must be **+91 (India)**. Forwarded/other-people's contacts are rejected (anti-spoof).
 2. **Location** — must share a GPS point that resolves to **real Indian territory** (bounding-box pre-filter + OpenStreetMap reverse-geocode, fail-closed).
 
 Only after both pass does the bot issue an invite link that creates a **join request**. The bot approves the request **only if that exact `user_id` is verified** — so a leaked or forwarded link gets everyone else **declined**.
@@ -37,13 +37,13 @@ t.me/<YourBot>?start=join
 
 ## Tech stack
 
-| Piece | Choice |
-|-------|--------|
-| Runtime | Cloudflare Workers (serverless, free tier) |
+| Piece     | Choice                                          |
+| --------- | ----------------------------------------------- |
+| Runtime   | Cloudflare Workers (serverless, free tier)      |
 | Framework | [grammY](https://grammy.dev) (Telegram Bot API) |
-| Storage | Workers KV (per-user verification state) |
-| Geocoding | OpenStreetMap Nominatim reverse geocode |
-| Language | TypeScript |
+| Storage   | Workers KV (per-user verification state)        |
+| Geocoding | OpenStreetMap Nominatim reverse geocode         |
+| Language  | TypeScript                                      |
 
 ## Quick start
 
@@ -64,11 +64,11 @@ Share the **bot deep link** (not the group link): `https://t.me/<YourBot>?start=
 
 All rules live in [src/index.ts](src/index.ts):
 
-| Rule | Where | Change to… |
-|------|-------|-----------|
-| Phone country code | `isIndiaPhone` | swap `91` prefix + digit length |
-| Region / geofence | `INDIA` bbox + `isIndiaCoord` | adjust lat/lng bounds; Nominatim `country_code` check |
-| Anti-spoof | `contact.user_id !== ctx.from.id` | keep — blocks forwarded contacts |
+| Rule               | Where                             | Change to…                                            |
+| ------------------ | --------------------------------- | ----------------------------------------------------- |
+| Phone country code | `isIndiaPhone`                    | swap `91` prefix + digit length                       |
+| Region / geofence  | `INDIA` bbox + `isIndiaCoord`     | adjust lat/lng bounds; Nominatim `country_code` check |
+| Anti-spoof         | `contact.user_id !== ctx.from.id` | keep — blocks forwarded contacts                      |
 
 So this works equally as a **USA-only**, **UK-only**, **Nigeria-only**, **Brazil-only**, etc. Telegram group gate — just edit the country code and bounding box.
 

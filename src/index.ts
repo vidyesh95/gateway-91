@@ -64,8 +64,12 @@ async function isIndiaCoord(lat: number, lng: number): Promise<boolean> {
 			signal: AbortSignal.timeout(5000),
 		});
 		if (!res.ok) return false;
-		const data = (await res.json()) as { address?: { country_code?: string } };
-		return data.address?.country_code?.toLowerCase() === "in";
+		const data = await res.json();
+		if (typeof data !== "object" || data === null || !("address" in data)) return false;
+		const address = data.address;
+		if (typeof address !== "object" || address === null || !("country_code" in address)) return false;
+		const cc = address.country_code;
+		return typeof cc === "string" && cc.toLowerCase() === "in";
 	} catch {
 		return false;
 	}
