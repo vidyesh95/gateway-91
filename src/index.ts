@@ -42,8 +42,34 @@ const isIndiaPhone = (raw: string): boolean => {
 	return d.startsWith("91") && d.length === 12;
 };
 
-const inIndia = (lat: number, lng: number): boolean =>
+// Cheap pre-filter: clearly outside the box -> reject without an API call.
+const inIndiaBox = (lat: number, lng: number): boolean =>
 	lat >= INDIA.latMin && lat <= INDIA.latMax && lng >= INDIA.lngMin && lng <= INDIA.lngMax;
+
+/**
+ * Confirm coords sit on real Indian landmass via OpenStreetMap Nominatim
+ * reverse geocoding. Follows the actual border, not the bbox rectangle.
+ *
+ * Nominatim usage policy: send a valid User-Agent, max ~1 req/sec.
+ * Fail-closed: any error / timeout / non-IN answer -> false.
+ */
+async function isIndiaCoord(lat: number, lng: number): Promise<boolean> {
+	if (!inIndiaBox(lat, lng)) return false; // cheap reject, no API hit
+	const url =
+		`https://nominatim.openstreetmap.org/reverse?format=json` +
+		`&lat=${lat}&lon=${lng}&zoom=5&addressdetails=1`;
+	try {
+		const res = await fetch(url, {
+			headers: { "User-Agent": "gateway-91-telegram-bot (join-gate verification)" },
+			signal: AbortSignal.timeout(5000),
+		});
+		if (!res.ok) return false;
+		const data = (await res.json()) as { address?: { country_code?: string } };
+		return data.address?.country_code?.toLowerCase() === "in";
+	} catch {
+		return false;
+	}
+}
 
 const phoneKeyboard = new Keyboard().requestContact("📱 Share my phone number").resized().oneTime();
 
@@ -144,7 +170,7 @@ function buildBot(env: Env): Bot {
 			return;
 		}
 		const { latitude, longitude } = ctx.message.location;
-		if (!inIndia(latitude, longitude)) {
+		if (!(await isIndiaCoord(latitude, longitude))) {
 			await ctx.reply("❌ Location is outside India. Access denied.", {
 				reply_markup: { remove_keyboard: true },
 			});
