@@ -13,6 +13,15 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"vars": {
+		"GROUP_CHAT_ID": "-1000000000000"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "VERIF",
+			"id": "PUT_KV_NAMESPACE_ID_HERE"
+		}
 	]
 	/**
 	 * Smart Placement
